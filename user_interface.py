@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+from tkinter import simpledialog, messagebox
 
 current_directory = [os.getcwd()]
 current_node = None
@@ -20,6 +21,37 @@ def populate_listbox(listbox, folder):
         # Check if the item is a file and not hidden
         elif os.path.isfile(item_path) and not item.startswith("."):
             listbox.insert(tk.END, item)
+
+def create_new_folder():
+    global current_directory, listbox
+
+    new_folder_name = simpledialog.askstring("Input", "Enter folder name:")
+    if new_folder_name:
+        new_folder_path = os.path.join(current_directory[0], new_folder_name)
+        try:
+            os.mkdir(new_folder_path)
+            populate_listbox(listbox, current_directory[0])
+        except OSError as e:
+            messagebox.showerror("Error", f"Failed to create folder: {e}")
+
+def delete_selected_folder():
+    global current_directory, listbox
+
+    selected_indices = listbox.curselection()
+    if selected_indices:
+        selected_index = selected_indices[0]
+        selected_item = listbox.get(selected_index)
+
+        if selected_item != "..":
+            folder_to_delete = os.path.join(current_directory[0], selected_item)
+            try:
+                if os.path.isdir(folder_to_delete):
+                    os.rmdir(folder_to_delete)
+                else:
+                    os.remove(folder_to_delete)
+                populate_listbox(listbox, current_directory[0])
+            except OSError as e:
+                messagebox.showerror("Error", f"Failed to delete folder/file: {e}")
 
 
 def on_double_click(event):
@@ -56,3 +88,8 @@ def create_ui(root, root_node, initial_directory=os.path.expanduser("~")):  # Sp
     populate_listbox(listbox, initial_directory)
 
     listbox.bind("<Double-Button-1>", on_double_click)
+
+    new_folder_button = tk.Button(root, text="New Folder", command=create_new_folder)
+    new_folder_button.pack(side=tk.LEFT, padx=10)
+    delete_folder_button = tk.Button(root, text="Delete Folder/File", command=delete_selected_folder)
+    delete_folder_button.pack(side=tk.LEFT, padx=10)

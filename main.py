@@ -25,7 +25,7 @@ def main():
     root_directory = os.path.expanduser("~")
     # Determine the root directory based on the platform
     if os.name == "posix":  # Linux or macOS
-        root_directory = "/home"  # Start scanning from the home directory
+        root_directory = "/"  # Start scanning from the home directory
     elif os.name == "nt":  # Windows
         root_directory = "C:\\"  # Start scanning from the C: drive (adjust as needed)
 
